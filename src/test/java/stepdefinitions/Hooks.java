@@ -1,5 +1,6 @@
 package stepdefinitions;
 
+import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import net.serenitybdd.screenplay.actors.OnStage;
 import net.serenitybdd.screenplay.actors.OnlineCast;
@@ -16,5 +17,11 @@ public class Hooks {
     public void Inicio() {
         OnStage.setTheStage(new OnlineCast());
         theActorCalled("Dueño");
+    }
+
+    /** Al terminar cada escenario se cierra el navegador del actor (libera memoria). */
+    @After
+    public void Fin() {
+        OnStage.drawTheCurtain();
     }
 }

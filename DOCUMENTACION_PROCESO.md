@@ -16,7 +16,7 @@ El proyecto de clase (`C:\Automatizacion_de_pruebas`) se copió a `C:\Automatiza
 | `Logueo` hacía clic en "forgot password" si no veía el botón | Lógica copiada de OrangeHRM, no existe en PetStay | Eliminada |
 | Versiones mezcladas (`serenity-junit 4.3.1` vs `4.2.32`, Selenium `4.38` y `4.15`) | Dependencias agregadas a mano | Una sola variable `serenityVersion = 4.2.32`; Selenium llega como dependencia transitiva de Serenity |
 | No existía `gradle/wrapper/gradle-wrapper.jar` y `.gitignore` ignoraba `gradlew`, `gradlew.bat` y `wrapper` | El pipeline ejecuta `chmod +x ./gradlew` → fallaría en un clon limpio | `gradle wrapper --gradle-version 8.14.3` y se dejó de ignorar el wrapper (`!gradle/wrapper/gradle-wrapper.jar`) |
-| La configuración de Chrome estaba solo dentro de `environments.chrome` | Sin `-Denvironment=chrome` esa configuración no se aplica (no corría headless) | Configuración de Chrome movida al bloque `webdriver` raíz (headless por defecto, necesario en CI) |
+| La configuración de Chrome estaba solo dentro de `environments.chrome` | Esa configuración (incluido headless) solo se aplica si se pasa `-Denvironment=chrome` | Configuración de Chrome movida al bloque `webdriver` raíz (headless por defecto, necesario en CI) |
 | `serenity.project.name = orangeHRMDemo`, typo `configureondeman` | Restos de la plantilla | Corregidos |
 | `no such element ... {"method":"xpath","selector":"input[name='peso']"}` (detectado al ejecutar) | `Target.locatedBy(...)` adivina el tipo de selector y tomó un CSS con `[...]` como XPath | Todos los selectores CSS llevan el prefijo explícito `css:` (ej. `css:input[name='peso']`) |
 
@@ -26,7 +26,7 @@ El proyecto de clase (`C:\Automatizacion_de_pruebas`) se copió a `C:\Automatiza
 
 PetStay es una SPA estática: todo el estado se guarda en el **`localStorage`** del navegador (`petstay_sesion`, `petstay_mascotas`, `petstay_reservas`). Consecuencias para la automatización:
 
-- Los escenarios deben ser **independientes entre sí**. En la primera ejecución se vio que el navegador se reutilizaba entre escenarios del mismo feature: el `localStorage` conservaba la sesión y `index.html` redirigía a `mascotas.html`, así que el campo usuario "no existía". Solución: la tarea `AbrirPetStay.sinDatosPrevios()` abre la app, ejecuta `localStorage.clear()` y vuelve a cargar; todos los escenarios empiezan por ella.
+- Los escenarios deben ser **independientes entre sí**. En la primera ejecución, 5 escenarios fallaron porque no aparecía el campo usuario. Hay dos causas posibles: (a) el navegador se reutilizó y el `localStorage` conservaba la sesión, así que `index.html` redirigía a `mascotas.html`; (b) el equipo se quedó sin memoria y el navegador no alcanzó a cargar la página (esa ejecución terminó cancelada por falta de memoria). Medidas tomadas para cubrir ambas: la tarea `AbrirPetStay.sinDatosPrevios()` abre la app, ejecuta `localStorage.clear()` y vuelve a cargarla (todos los escenarios empiezan por ella), y `Hooks` cierra el navegador al terminar cada escenario (`@After` → `OnStage.drawTheCurtain()`).
 - Si un escenario necesita una mascota o una reserva, la crea en sus propios pasos `Given`.
 - La app simula latencia con esperas aleatorias (300–1500 ms) y una capa `#capa-cargando`. Por eso las tareas esperan con `WaitUntil` (nunca `Thread.sleep`).
 - Las fechas se validan contra **hoy**, así que los escenarios no usan fechas fijas: usan desplazamientos ("entrada en 2 días") que `Atm.Utils.Fechas` convierte a `DD/MM/AAAA`.
@@ -67,7 +67,7 @@ Cada historia de usuario es un **requisito** (`@HU-0X`, tag a nivel de `Feature`
 | @Issue-15 | @HU-04 | Positivo · smoke | Cancelación con reembolso 100% / 50% / 0% | cancelaciones.feature |
 | @Issue-16 | @HU-04 | Negativo | Desistir de la cancelación → sigue "Confirmada" | cancelaciones.feature |
 
-**Total:** 16 escenarios (8 positivos, 8 negativos) → 28 ejecuciones contando los ejemplos de los `Scenario Outline`.
+**Total:** 16 escenarios (8 positivos, 8 negativos) → 30 ejecuciones contando los ejemplos de los `Scenario Outline`.
 
 Técnicas de diseño aplicadas: **valores límite** (peso 10/25 en el cambio de tamaño, 80.5 kg, 30 vs 31 noches, 7 noches para el descuento, 0/1/3 días en la política de reembolso) y **partición de equivalencia** (credenciales inválidas, datos fuera de rango).
 
@@ -207,8 +207,9 @@ La app mezcla a propósito `id`, `name`, `data-testid`, clases y texto. Orden de
 **Iteraciones de ejecución local:**
 
 1. Proyecto de clase sin cambios: 1 escenario, 1 fallido (localizadores de OrangeHRM).
-2. Primera ejecución de los 16 escenarios (interrumpida por falta de memoria en el equipo): los 4 escenarios de `@HU-01` pasaron; el resto falló por los dos defectos de automatización descritos en las secciones 1 y 2 (selector CSS tomado como XPath y `localStorage` reutilizado). Ambos se corrigieron.
-3. Pendiente: volver a ejecutar la suite completa con los cambios (`./gradlew clean test`) y anotar aquí el resultado. Si el equipo tiene poca memoria, ejecutar por requisito (`-Dcucumber.filter.tags="@HU-02"`, etc.).
+2. Primera ejecución de los 16 escenarios (cancelada por falta de memoria en el equipo): los 4 escenarios de `@HU-01` pasaron; los demás fallaron por problemas de la automatización (no de la app): selector CSS tomado como XPath y campo usuario no encontrado (ver secciones 1 y 2). Se corrigieron.
+3. Pendiente: volver a ejecutar con los cambios y anotar aquí el resultado. Con poca memoria conviene ejecutar por requisito y con capturas solo en fallos:
+   `./gradlew clean test -Dcucumber.filter.tags="@HU-02" -Dserenity.take.screenshots=FOR_FAILURES`
 
 ---
 
