@@ -33,6 +33,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    maxHeapSize = "384m"
+    jvmArgs "-XX:+UseSerialGC"
     test.finalizedBy(aggregate)
     // Pasar propiedades del sistema a los tests (ej: -Dcucumber.filter.tags="@Issue-1")
     systemProperties = System.properties

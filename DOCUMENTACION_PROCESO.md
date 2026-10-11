@@ -19,6 +19,10 @@ El proyecto de clase (`C:\Automatizacion_de_pruebas`) se copió a `C:\Automatiza
 | La configuración de Chrome estaba solo dentro de `environments.chrome` | Esa configuración (incluido headless) solo se aplica si se pasa `-Denvironment=chrome` | Configuración de Chrome movida al bloque `webdriver` raíz (headless por defecto, necesario en CI) |
 | `serenity.project.name = orangeHRMDemo`, typo `configureondeman` | Restos de la plantilla | Corregidos |
 | `no such element ... {"method":"xpath","selector":"input[name='peso']"}` (detectado al ejecutar) | `Target.locatedBy(...)` adivina el tipo de selector y tomó un CSS con `[...]` como XPath | Todos los selectores CSS llevan el prefijo explícito `css:` (ej. `css:input[name='peso']`) |
+| `There is insufficient memory for the Java Runtime Environment` (equipo local con ~7,5 GB de RAM) | Gradle, la JVM de pruebas y Chrome reservaban más memoria de la disponible | Límites en `gradle.properties` (`-Xmx384m`) y `build.gradle` (`maxHeapSize = "384m"`, `SerialGC`); Chrome con `--disable-gpu --disable-extensions --renderer-process-limit=2` |
+| El comentario que el pipeline publica en el Issue tenía varias líneas y `jq -R .` generaba un JSON inválido | `jq -R` convierte cada línea en un string separado | `jq -Rs .` (lee todo el texto como un solo string) |
+
+Para la sustentación se agregó el entorno `-Denvironment=visible` (Chrome con ventana) y la guía [GUIA_PRESENTACION.md](GUIA_PRESENTACION.md).
 
 ---
 
@@ -208,8 +212,23 @@ La app mezcla a propósito `id`, `name`, `data-testid`, clases y texto. Orden de
 
 1. Proyecto de clase sin cambios: 1 escenario, 1 fallido (localizadores de OrangeHRM).
 2. Primera ejecución de los 16 escenarios (cancelada por falta de memoria en el equipo): los 4 escenarios de `@HU-01` pasaron; los demás fallaron por problemas de la automatización (no de la app): selector CSS tomado como XPath y campo usuario no encontrado (ver secciones 1 y 2). Se corrigieron.
-3. Pendiente: volver a ejecutar con los cambios y anotar aquí el resultado. Con poca memoria conviene ejecutar por requisito y con capturas solo en fallos:
-   `./gradlew clean test -Dcucumber.filter.tags="@HU-02" -Dserenity.take.screenshots=FOR_FAILURES`
+3. Primera suite completa con los cambios: la JVM no pudo arrancar por falta de memoria del equipo (`Native memory allocation (malloc) failed`), no por las pruebas. Se limitaron la memoria de Gradle, la JVM de pruebas y Chrome (sección 1).
+4. **Ejecución final (11/10/2026), por requisito y acumulando un solo reporte:**
+
+   | Requisito | Ejecuciones | Pasaron | Fallaron |
+   |---|---|---|---|
+   | `@HU-01` Login | 6 | 6 | 0 |
+   | `@HU-02` Mascotas | 10 | 10 | 0 |
+   | `@HU-03` Reservas | 10 | 10 | 0 |
+   | `@HU-04` Cancelaciones | 4 | 4 | 0 |
+   | **Total** | **30 (16 escenarios)** | **30** | **0** |
+
+   El reporte de Serenity tiene 16 escenarios y todos sus pasos terminaron en `SUCCESS` (ninguno `PENDING`, `SKIPPED` ni `ERROR`).
+5. **Control negativo** (para comprobar que las validaciones detectan errores): en `@Issue-9` se cambió el total esperado de `$40.000` a `$45.000`. Resultado: 3 ejecuciones, 1 fallida con `Expected: "$45.000" but: was "$40.000"`. Después se revirtió el cambio.
+6. El entorno `-Denvironment=visible` se probó con `@Issue-4` (pasó).
+
+Con poca memoria conviene ejecutar por requisito y con capturas solo en fallos:
+`./gradlew clean test -Dcucumber.filter.tags="@HU-02" -Dserenity.take.screenshots=FOR_FAILURES`
 
 ---
 
@@ -265,3 +284,4 @@ bash scripts/crear_issues.sh <usuario> <numero-del-project>
 | 5.3 Despliegue en GitHub Actions | `.github/workflows/ci.yml` adaptado a Serenity |
 | 5.4 TestCases con Issues vinculados | Tags `@Issue-N` + `@HU-0X`, script de creación de Issues + Project |
 | 4.4 Tags de requisito | `@HU-01`…`@HU-04` a nivel de Feature |
+| Casos funcionando | 30/30 ejecuciones en verde localmente (sección 6) |

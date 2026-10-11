@@ -34,3 +34,10 @@ workers
 build
 bin
 history
+
+# Volcados de la JVM cuando se queda sin memoria
+hs_err_pid*.log
+replay_pid*.log
+
+# Copia local del reporte para la sustentación (no se versiona)
+evidencias/
