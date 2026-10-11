@@ -260,7 +260,7 @@ Issue #7 (GitHub Project)  ←→  @Issue-7  ←→  Scenario Outline "Registro 
 ### Pasos para publicar
 
 ```bash
-# 1. Crear el repositorio vacío en GitHub (sin README para no ocupar números) y subir el código
+# 1. Crear el repositorio vacío en GitHub (sin README ni licencia: si trae un commit inicial, el push del historial local es rechazado) y subir el código
 git remote add origin https://github.com/<usuario>/<repo>.git
 git push -u origin main
 
