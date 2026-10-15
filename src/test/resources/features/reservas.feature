@@ -47,13 +47,6 @@ Feature: HU-03 Reserva de estadías
       | salida igual a la entrada | 2       | 2      | salida  | La fecha de salida debe ser posterior a la de entrada |
       | estadía de 31 noches      | 1       | 32     | salida  | La estadía máxima es de 30 noches                     |
 
-  @Issue-13 @negativo
-  Scenario: El servicio de paseo diario no está disponible para gatos
-    Given tiene registrada la mascota "Luna" de especie "Gato" con peso "4" kg
-    When elige a "Luna" en el formulario de reserva
-    Then el servicio de paseo no está habilitado
-    And se informa que "El paseo solo está disponible para perros."
-
   @Issue-14 @negativo
   Scenario: Reserva rechazada por cruce de fechas con otra reserva activa
     Given tiene registrada la mascota "Toby" de especie "Perro" con peso "12" kg

@@ -8,7 +8,6 @@ public class PaginaReservar {
     public static final Target fechaSalida = Target.the("campo fecha de salida").locatedBy("css:[data-testid='fecha-salida']");
     public static final Target servicioBano = Target.the("check baño y peluquería").locatedBy("css:#srv-bano");
     public static final Target servicioPaseo = Target.the("check paseo diario").locatedBy("css:input[name='paseo']");
-    public static final Target notaPaseo = Target.the("nota de paseo solo para perros").locatedBy("css:p.nota-paseo");
     public static final Target btnCalcular = Target.the("botón Calcular total").locatedBy("css:#btn-calcular");
     public static final Target panelResumen = Target.the("panel de resumen").locatedBy("css:aside.panel-resumen");
     public static final Target resNoches = Target.the("noches del resumen").locatedBy("css:[data-testid='res-noches']");

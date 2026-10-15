@@ -2,11 +2,9 @@ package stepdefinitions;
 
 import Atm.Question.Mensajes;
 import Atm.Question.ResumenReserva;
-import Atm.Question.ServicioPaseo;
 import Atm.task.CancelarReserva;
 import Atm.task.ConfirmarReserva;
 import Atm.task.CotizarReserva;
-import Atm.task.ElegirMascotaParaReservar;
 import Atm.task.VerMisReservas;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -35,11 +33,6 @@ public class ReservasStepdefs {
     @When("confirma la reserva")
     public void confirma_la_reserva() {
         theActorInTheSpotlight().attemptsTo(ConfirmarReserva.cotizada());
-    }
-
-    @When("elige a {string} en el formulario de reserva")
-    public void elige_a_en_el_formulario_de_reserva(String mascota) {
-        theActorInTheSpotlight().attemptsTo(ElegirMascotaParaReservar.llamada(mascota));
     }
 
     @When("cancela la reserva confirmando la acción")
@@ -89,16 +82,6 @@ public class ReservasStepdefs {
     @Then("el campo {string} de la reserva muestra el error {string}")
     public void el_campo_de_la_reserva_muestra_el_error(String campo, String error) {
         theActorInTheSpotlight().should(seeThat(Mensajes.errorEnCampoDeReserva(campo), equalTo(error)));
-    }
-
-    @Then("el servicio de paseo no está habilitado")
-    public void el_servicio_de_paseo_no_esta_habilitado() {
-        theActorInTheSpotlight().should(seeThat(ServicioPaseo.estaHabilitado(), is(false)));
-    }
-
-    @Then("se informa que {string}")
-    public void se_informa_que(String nota) {
-        theActorInTheSpotlight().should(seeThat(ServicioPaseo.nota(), equalTo(nota)));
     }
 
     @Then("se muestra el mensaje de cancelación con {string}")

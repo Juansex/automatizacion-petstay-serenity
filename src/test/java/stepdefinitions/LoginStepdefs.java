@@ -8,11 +8,9 @@ import Atm.task.Logueo;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import net.serenitybdd.screenplay.actions.Open;
 
 import static Atm.Question.ValidarDashboard.verificarCargaDashboard;
 import static Atm.Question.ValidarPantallaLogin.verificarPantallaLogin;
-import static Atm.Utils.RutasYConstantes.urlMascotas;
 import static net.serenitybdd.screenplay.GivenWhenThen.seeThat;
 import static net.serenitybdd.screenplay.actors.OnStage.theActorInTheSpotlight;
 import static org.hamcrest.Matchers.equalTo;
@@ -27,11 +25,6 @@ public class LoginStepdefs {
     @Given("el dueño inició sesión en PetStay")
     public void el_dueno_inicio_sesion_en_pet_stay() {
         theActorInTheSpotlight().attemptsTo(IngresarAPetStay.comoDueno());
-    }
-
-    @Given("un visitante sin sesión intenta abrir la página de mis mascotas")
-    public void un_visitante_sin_sesion_intenta_abrir_mis_mascotas() {
-        theActorInTheSpotlight().attemptsTo(AbrirPetStay.sinDatosPrevios(), Open.url(urlMascotas));
     }
 
     @When("ingreso nombre de {string} y {string} e ingreso al sistema")

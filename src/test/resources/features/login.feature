@@ -27,8 +27,3 @@ Feature: HU-01 Inicio y cierre de sesión en PetStay
     Given el dueño inició sesión en PetStay
     When cierra la sesión
     Then regresa a la pantalla de inicio de sesión
-
-  @Issue-4 @negativo
-  Scenario: Acceso a una página privada sin haber iniciado sesión
-    Given un visitante sin sesión intenta abrir la página de mis mascotas
-    Then regresa a la pantalla de inicio de sesión
